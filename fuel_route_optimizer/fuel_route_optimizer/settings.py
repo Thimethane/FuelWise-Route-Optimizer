@@ -16,6 +16,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.app.github.dev",
+    "https://*.github.dev"
+]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
