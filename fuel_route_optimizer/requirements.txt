@@ -1,0 +1,30 @@
+# Core Django and REST Framework
+Django==5.0.1
+djangorestframework==3.14.0
+
+# Database
+psycopg2-binary==2.9.9  # PostgreSQL (production)
+
+# Geospatial calculations
+geopy==2.4.1
+
+# HTTP requests for map API
+requests==2.31.0
+
+# Caching (production)
+redis==5.0.1
+django-redis==5.4.0
+
+# Production server
+gunicorn==21.2.0
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Development tools
+django-extensions==3.2.3
+ipython==8.20.0
+
+# Testing
+pytest==7.4.3
+pytest-django==4.7.0

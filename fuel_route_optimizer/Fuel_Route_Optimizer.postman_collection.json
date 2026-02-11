@@ -1,0 +1,249 @@
+{
+  "info": {
+    "name": "Fuel Route Optimizer API",
+    "description": "API for optimizing fuel stops along US routes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Optimize Route",
+      "item": [
+        {
+          "name": "San Francisco to New York",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"San Francisco, CA\",\n  \"finish\": \"New York, NY\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/optimize-route/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "optimize-route", ""]
+            },
+            "description": "Long route (~2,900 miles, 6 stops)\nExpected: 5-6 fuel stops, ~$1,000 total cost"
+          }
+        },
+        {
+          "name": "Los Angeles to San Francisco",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Los Angeles, CA\",\n  \"finish\": \"San Francisco, CA\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/optimize-route/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "optimize-route", ""]
+            },
+            "description": "Short route (~380 miles, 0-1 stop)\nExpected: 0-1 fuel stops, ~$130 total cost"
+          }
+        },
+        {
+          "name": "Chicago to Houston",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Chicago, IL\",\n  \"finish\": \"Houston, TX\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/optimize-route/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "optimize-route", ""]
+            },
+            "description": "Medium route (~1,100 miles, 2-3 stops)\nExpected: 2-3 fuel stops, ~$380 total cost"
+          }
+        },
+        {
+          "name": "Error - Missing Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"finish\": \"New York, NY\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/optimize-route/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "optimize-route", ""]
+            },
+            "description": "Tests validation - missing required field\nExpected: 400 Bad Request"
+          }
+        },
+        {
+          "name": "Error - Same Start and Finish",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"Chicago, IL\",\n  \"finish\": \"Chicago, IL\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/optimize-route/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "optimize-route", ""]
+            },
+            "description": "Tests validation - start equals finish\nExpected: 400 Bad Request"
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Stations",
+      "item": [
+        {
+          "name": "All Stations (Limited)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/stations/?limit=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "stations", ""],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get first 10 stations"
+          }
+        },
+        {
+          "name": "Filter by State",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/stations/?state=CA&limit=20",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "stations", ""],
+              "query": [
+                {
+                  "key": "state",
+                  "value": "CA"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get stations in California"
+          }
+        },
+        {
+          "name": "Filter by Price",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/stations/?max_price=3.00&limit=50",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "stations", ""],
+              "query": [
+                {
+                  "key": "max_price",
+                  "value": "3.00"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Get stations with price <= $3.00/gallon"
+          }
+        },
+        {
+          "name": "Filter by City and State",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/stations/?state=TX&city=Houston&limit=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "stations", ""],
+              "query": [
+                {
+                  "key": "state",
+                  "value": "TX"
+                },
+                {
+                  "key": "city",
+                  "value": "Houston"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get stations in Houston, TX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8000/api/health/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "health", ""]
+        },
+        "description": "Check API health and database status"
+      }
+    }
+  ]
+}
