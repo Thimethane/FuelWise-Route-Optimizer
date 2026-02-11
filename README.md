@@ -35,7 +35,7 @@ This API takes two US locations and returns an optimal route with fuel stops sel
 
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/Thimethane/FuelWise-Route-Optimizer
 cd fuel_route_optimizer
 
 # Create virtual environment
@@ -46,13 +46,31 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Run migrations
+python manage.py makemigrations routing
+python manage.py makemigrations
 python manage.py migrate
 
 # Import fuel station data
-python manage.py import_fuel_data /path/to/fuel-prices-for-be-assessment.csv
+python manage.py import_fuel_data fuel-prices-for-be-assessment.csv
 
 # Optional: Geocode stations (takes ~2 hours for 8000 stations)
-python manage.py import_fuel_data /path/to/fuel-prices.csv --geocode
+python manage.py import_fuel_data fuel-prices.csv --geocode
+python manage.py import_fuel_data fuel_prices.csv --geocode --use-mock #For quickdemo
+# Expected output:
+# Cleared existing fuel stations
+# Importing fuel stations from fuel_prices.csv
+# Imported 1000 stations...
+# Imported 2000 stations...
+# ...
+# Successfully imported 6,738 fuel stations
+```
+
+**Note on Geocoding:**
+- The import command accepts a `--geocode` flag to add lat/lng coordinates
+- This uses Nominatim API (free, 1 req/sec limit)
+- For 6,738(duplicates are removed) stations: ~2.5 hours
+- **For this demo**: Skip geocoding, use mock coordinates
+- Mock client will generate realistic coordinates automatically
 
 # Start development server
 python manage.py runserver
@@ -203,7 +221,54 @@ System health status and statistics.
   "version": "1.0.0"
 }
 ```
+---
 
+## Testing with Postman
+
+### Import Collection
+1. Open Postman
+2. Click "Import"
+3. Select `Fuel_Route_Optimizer.postman_collection.json`
+4. Collection appears with 8 pre-configured requests
+
+### Test Scenarios
+
+**Scenario 1: Short Route** (380 miles, 0-1 stop)
+```
+Request: San Francisco → Los Angeles
+Expected: 0-1 fuel stops, ~$130 total
+Response time: <500ms
+```
+
+**Scenario 2: Medium Route** (1,100 miles, 2-3 stops)
+```
+Request: Chicago → Houston
+Expected: 2-3 fuel stops, ~$380 total
+Response time: <800ms
+```
+
+**Scenario 3: Long Route** (2,900 miles, 5-6 stops)
+```
+Request: San Francisco → New York
+Expected: 5-6 fuel stops, ~$1,000 total
+Response time: <1200ms
+```
+
+### What to Look For
+
+✅ **Performance Metrics**
+- `computation_time`: Should be <1.5s
+- `map_api_calls`: Should be 1 (or 0 if cached)
+
+✅ **Optimization Quality**
+- Fuel stops should be 300-450 miles apart
+- Prices should be competitive (lowest available near route)
+- Total cost should be reasonable
+
+✅ **Response Structure**
+- All required fields present
+- Coordinates are valid US locations
+- Math checks out (fuel_needed × price = cost)
 ---
 
 ## 🏗️ Architecture

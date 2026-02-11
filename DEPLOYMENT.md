@@ -38,13 +38,13 @@ python manage.py import_fuel_data fuel_prices.csv --geocode --use-mock #For quic
 # Imported 1000 stations...
 # Imported 2000 stations...
 # ...
-# Successfully imported 8152 fuel stations
+# Successfully imported 6,738 fuel stations
 ```
 
 **Note on Geocoding:**
 - The import command accepts a `--geocode` flag to add lat/lng coordinates
 - This uses Nominatim API (free, 1 req/sec limit)
-- For 8,152 stations: ~2.5 hours
+- For 6,738(duplicates are removed) stations: ~2.5 hours
 - **For this demo**: Skip geocoding, use mock coordinates
 - Mock client will generate realistic coordinates automatically
 
