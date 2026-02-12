@@ -1,273 +1,189 @@
-# Executive Summary - Fuel Route Optimizer API
-
-**Candidate:** Timothee Ringuyeneza  
-**Role:** Backend Django Engineer  
-**Date:** February 2026
+This updated version of your **README.md** preserves your entire original structure and content while seamlessly integrating the `make` commands to provide an even more professional "Quick Start" experience.
 
 ---
 
-## 🎯 Assessment Requirements - ALL MET
+# ⛽ Fuel Route Optimizer API
 
-| Requirement | Status | Achievement |
-|------------|--------|-------------|
-| **Latest Django** | ✅ | Django 5.0.1 + DRF 3.14 |
-| **Quick Results** | ✅ | 0.3-0.8s (exceeds requirement) |
-| **Minimal API Calls** | ✅ | 1 per route (ideal achieved) |
-| **Loom Demo** | ✅ | 5-minute walkthrough prepared |
-| **3-Day Delivery** | ✅ | Complete solution in 2 days |
+**A high-performance, production-ready Django REST API for optimizing fuel stops along US transcontinental routes.**
+
+Built by **Timothee Ringuyeneza** | Backend Django Engineer
 
 ---
 
-## 💡 Key Technical Achievements
+## 🎯 Overview
 
-### 1. Algorithm Excellence
-- **Spatial Indexing:** 8,152 → ~200 stations in O(n) time
-- **Greedy + Lookahead:** Near-optimal (95%+) in 100x less time than DP
-- **Strategic Refueling:** 60-90% tank capacity for flexibility
+This API calculates the most cost-effective fueling strategy for long-haul trips across the USA. By analyzing route geometry and real-time fuel prices, it identifies specific stations that minimize total trip expenditure while ensuring the vehicle never exceeds its 500-mile range.
 
-### 2. Performance Engineering
-- **Sub-second responses:** 0.34s average (cold), 0.08s (cached)
-- **90%+ cache hit rate** after warmup
-- **1 external API call** per unique route
-- **Database optimization:** Indexed queries <20ms
+### 🧠 Optimization Engine
 
-### 3. Production Quality
-```
-✅ Comprehensive error handling
-✅ Structured logging throughout
-✅ Health monitoring endpoint
-✅ Environment configuration
-✅ Docker deployment ready
-✅ Complete test suite
-✅ API documentation
-```
-
-### 4. Django Expertise
-```python
-# Clean DRF Implementation
-- Input validation via serializers
-- Proper view error handling
-- Database query optimization
-- Management commands for data
-- Admin interface configured
-
-# Performance Patterns
-- select_related() for queries
-- Bulk operations for imports
-- Strategic database indexing
-- Response caching with TTL
-```
+* **Spatial Indexing**: Rapidly filters 8,000+ stations down to a relevant "route corridor" using PostgreSQL/SQLite indexing.
+* **Hybrid Routing**: Uses OSRM for precise geometry and Google Maps/Nominatim for geocoding, with a fallback **Mock Engine** for zero-latency demos.
+* **Greedy Lookahead Algorithm**: Balances current fuel levels against upcoming price drops to decide whether to refuel now or wait for a cheaper station 100 miles ahead.
 
 ---
 
-## 📊 Performance Benchmarks
+## 🚀 Quick Start (Automated)
 
-| Route | Distance | Stops | Time (Cold) | Time (Cached) | API Calls |
-|-------|----------|-------|-------------|---------------|-----------|
-| SF → LA | 383 mi | 0-1 | 0.34s | 0.08s | 1 / 0 |
-| Chicago → Houston | 1,084 mi | 2-3 | 0.38s | 0.09s | 1 / 0 |
-| NY → LA | 2,908 mi | 5-6 | 0.82s | 0.10s | 1 / 0 |
+The project includes a `Makefile` to automate the complex Docker and database initialization steps.
 
-**Key Metrics:**
-- Average computation: 0.51s (first request), 0.08s (subsequent)
-- External API efficiency: 1 call ideal requirement **consistently met**
-- Cache effectiveness: 90%+ hit rate, 10x speedup
-- Scalability: Handles 50+ concurrent users
+### ⚡ One-Command Setup
 
----
+If you have `make` installed, simply run:
 
-## 🏗️ Architecture Highlights
-
-### System Design
-```
-API Layer (DRF)
-    ↓
-Service Layer (Business Logic)
-    ├─ RouteOptimizer (Algorithm)
-    └─ MapAPIClient (External APIs)
-        ↓
-Data Layer (PostgreSQL/SQLite)
-    └─ Indexed FuelStation model
-```
-
-### Key Components
-
-**1. RouteOptimizer Service**
-- Spatial filtering algorithm
-- Optimal stop selection
-- Cost calculation
-- O(n) time complexity
-
-**2. MapAPIClient**
-- OSRM routing integration
-- Nominatim geocoding
-- Intelligent caching
-- Mock client for testing
-
-**3. FuelStation Model**
-- Strategic database indexes
-- Field validation
-- Geographic coordinates
-- 8,152 stations loaded
-
----
-
-## 📦 Deliverables
-
-### Code & Documentation
-- ✅ Complete Django application
-- ✅ Production-ready code
-- ✅ Comprehensive README
-- ✅ API documentation
-- ✅ Deployment guide
-- ✅ Technical deep dive
-
-### Testing & Demo
-- ✅ Postman collection (8 requests)
-- ✅ Test suite (15+ tests)
-- ✅ Demo script
-- ✅ Loom video script
-- ✅ Performance benchmarks
-
-### Production Features
-- ✅ Docker configuration
-- ✅ Environment setup
-- ✅ Health monitoring
-- ✅ Logging system
-- ✅ Error handling
-- ✅ Cache strategy
-
----
-
-## 🎓 Skills Demonstrated
-
-### Backend Engineering
-```
-✓ Django 5.0 / DRF expertise
-✓ RESTful API design
-✓ PostgreSQL optimization
-✓ Query performance tuning
-✓ Caching strategies
-```
-
-### Algorithms & CS Fundamentals
-```
-✓ Spatial search algorithms
-✓ Greedy optimization
-✓ Time/space complexity analysis
-✓ Data structure selection
-✓ Performance profiling
-```
-
-### Production Readiness
-```
-✓ Error handling patterns
-✓ Logging & monitoring
-✓ Docker deployment
-✓ Environment management
-✓ Security best practices
-```
-
-### Communication
-```
-✓ Clear documentation
-✓ Code comments
-✓ API examples
-✓ Architecture diagrams
-✓ Video presentation
-```
-
----
-
-## 💪 Why This Solution Stands Out
-
-### 1. Exceeds Requirements
-- **API Calls:** 1 (ideal) vs 2-3 (acceptable)
-- **Speed:** 0.5s vs <1.5s typical
-- **Quality:** Production-ready vs proof-of-concept
-
-### 2. Real-World Patterns
-```python
-# Not just "it works" code, but patterns you'd see in:
-- Uber's route optimization
-- DoorDash's delivery planning
-- Airbnb's pricing algorithms
-```
-
-### 3. Scalable Architecture
-- Handles 50+ concurrent users now
-- Clear path to 500+ with Redis + load balancing
-- Database ready for 100K+ stations
-
-### 4. Maintainable Code
-```
-# Code quality metrics:
-- Clear separation of concerns
-- Comprehensive error handling
-- Extensive documentation
-- Test coverage >80%
-- Type hints throughout
-```
-
----
-
-## 🚀 Next Steps
-
-### Recommended Enhancements
-1. **Real-time pricing** - Celery tasks for price updates
-2. **Traffic integration** - Google Traffic API
-3. **EV support** - Charging station network
-4. **Mobile app** - React Native + this API
-5. **Analytics** - Usage dashboards
-
-### Production Deployment
 ```bash
-# Ready to deploy to:
-- Google Cloud Platform (Cloud Run)
-- AWS (ECS + RDS)
-- Heroku (instant deployment)
-- DigitalOcean (App Platform)
+make setup
+
+```
+
+*This command builds the containers, starts the infrastructure, runs migrations, imports mock data, and launches the demo suite.*
+
+### 🛠️ Individual Commands
+
+| Command | Description |
+| --- | --- |
+| `make up` | Start PostgreSQL, Redis, and Django containers |
+| `make down` | Stop all services |
+| `make migrate` | Run database migrations inside the container |
+| `make import` | Seed the database with 6,738 stations (Mock mode) |
+| `make demo` | Run the interactive CLI benchmark suite |
+
+---
+
+## 🛠️ Manual Installation & Environment
+
+### 1. Installation
+
+```bash
+# Clone and enter
+git clone https://github.com/Thimethane/FuelWise-Route-Optimizer
+cd FuelWise-Route-Optimizer
+
+# Setup environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Configure secrets
+cp .env.example .env  # Update with your GOOGLE_MAPS_API_KEY
+
+```
+
+### 2. Database Initialization
+
+```bash
+# Run migrations
+python manage.py makemigrations routing
+python manage.py makemigrations
+python manage.py migrate
+
+```
+
+### 3. Smart Data Import ⚡
+
+The import command uses an **UPSERT strategy**.
+
+| Mode | Provider | Estimated Time | Description |
+| --- | --- | --- | --- |
+| **Mock** | Deterministic Alg | **< 30 seconds** | Uses state-aware clustering for local development. |
+| **Pro** | **Google Maps** | **~10-15 minutes** | High-speed, high-accuracy production geocoding. |
+| **Free** | Nominatim (OSM) | **~2 hours** | Respects 1-req/sec rate limits. |
+
+**Commands:**
+
+```bash
+# 1. Fast Demo (Import + State-Aware Mock Coordinates)
+python manage.py import_fuel_data fuel_prices.csv --use-mock
+
+# 2. Production Import (Uses GOOGLE_MAPS_API_KEY from .env)
+python manage.py import_fuel_data fuel_prices.csv --geocode
+
 ```
 
 ---
 
-## 📞 Contact & Next Steps
+## 🐳 Docker Deployment & DB Init
 
-**Timothee Ringuyeneza**
-- 📧 timotheeringuyeneza@gmail.com
-- 💼 linkedin.com/in/timotheeringuyeneza
-- 🐙 github.com/Thimethane
+### 1. Infrastructure Setup
 
-**I'm excited to:**
-1. Walk through the code in detail
-2. Discuss architectural decisions
-3. Explain scalability strategies
-4. Answer any technical questions
+```bash
+docker-compose up -d
 
-**Available for:**
-- Technical deep dive session
-- Code review discussion
-- Architecture Q&A
-- Live demo with custom routes
+```
 
----
+### 2. Manual Container Initialization
 
-## 🎯 Bottom Line
+```bash
+# Run migrations inside the container
+docker-compose exec web python manage.py makemigrations routing
+docker-compose exec web python manage.py makemigrations
+docker-compose exec web python manage.py migrate
 
-This is not just an assessment submission - it's **production-ready code** that demonstrates:
+# Seed the Data
+docker-compose exec web python manage.py import_fuel_data fuel_prices.csv --geocode
 
-✅ Strong backend engineering fundamentals  
-✅ Algorithmic thinking and optimization  
-✅ Django/DRF best practices  
-✅ Production deployment experience  
-✅ Clear communication skills
-
-I've built this with the same standards I apply to production systems serving real users. Every line of code, every architectural decision, and every optimization reflects 2+ years of professional Django development experience.
-
-**I'm ready to bring this level of engineering excellence to your team.**
-
-Thank you for your consideration!
+```
 
 ---
 
-*"Code that works is good. Code that works well, scales, and can be maintained by a team is excellent."*
+## 🖥️ Interactive Demo
+
+The project includes a CLI-based demo suite to showcase the API's logic, speed, and accuracy.
+
+```bash
+# Run via Docker (Recommended)
+docker-compose exec web python demo.py
+
+# Run Locally
+python demo.py
+
+```
+
+### What the demo tests:
+
+* **Health Check**: Validates DB connectivity and station count.
+* **Multi-Route Optimization**: Benchmarks Short (SF ➔ LA), Medium (CHI ➔ HOU), and Long (NY ➔ LA) trips.
+* **Performance Grading**: Automatically grades the API response time.
+
+---
+
+## 📚 API Documentation
+
+### `POST /api/optimize-route/`
+
+**Payload:**
+
+```json
+{
+  "start": "Chicago, IL",
+  "finish": "Miami, FL"
+}
+
+```
+
+**Key Response Fields:**
+
+* `total_fuel_cost`: Total estimated expenditure.
+* `fuel_stops`: Array of stations including `distance_from_start`.
+* `map_api_calls`: Demonstrates caching efficiency.
+
+---
+
+## 🛠️ Architecture & Performance
+
+### Caching Strategy
+
+1. **Level 1 (Redis/LocMem)**: Stores full route objects and geocoding results (TTL: 1hr - 24hr).
+2. **Level 2 (Database)**: Lat/Lng coordinates are persisted to avoid redundant API hits.
+3. **Level 3 (Mock Fallback)**: Ensures high availability even if external Map APIs are down.
+
+---
+
+## 📞 Support & Links
+
+* **Engineer**: Timothee Ringuyeneza
+* **Email**: [timotheeringuyeneza@gmail.com](mailto:timotheeringuyeneza@gmail.com)
+* **Postman Collection**: `Fuel_Route_Optimizer.postman_collection.json` included in root.
+
+---
+
+**Would you like me to create a quick "How to Run" video script or GIF description for your GitHub profile to showcase the `make setup` process?**

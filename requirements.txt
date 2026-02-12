@@ -5,8 +5,10 @@ djangorestframework==3.14.0
 # Database
 psycopg2-binary==2.9.9  # PostgreSQL (production)
 
-# Geospatial calculations
+# Geospatial & Maps
 geopy==2.4.1
+googlemaps==4.10.0      
+polyline==2.0.1         
 
 # HTTP requests for map API
 requests==2.31.0

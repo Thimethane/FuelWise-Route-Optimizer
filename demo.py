@@ -126,7 +126,7 @@ class FuelOptimizerDemo:
                         print(f"    {i}. {station['name']}")
                         print(f"       📍 {station['city']}, {station['state']}")
                         print(f"       📏 {stop['distance_from_start']:.1f} mi from start")
-                        print(f"       ⛽ {stop['fuel_needed']:.1f} gal @ ${station['retail_price']:.3f}/gal")
+                        print(f"       ⛽ {stop['fuel_needed']:.1f} gal @ ${float(station['retail_price']):.3f}/gal")
                         print(f"       💰 ${stop['cost']:.2f}")
                         print()
                 
@@ -172,7 +172,7 @@ class FuelOptimizerDemo:
                     print(f"\n  {Colors.BOLD}Sample Stations:{Colors.ENDC}")
                     for station in data['stations'][:5]:
                         print(f"    • {station['name']}")
-                        print(f"      {station['city']}, {station['state']} - ${station['retail_price']:.3f}/gal")
+                        print(f"      {station['city']}, {station['state']} - ${float(station['retail_price']):.3f}/gal")
                 
                 # Test filtering
                 print_info("\nTesting filters...")
