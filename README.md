@@ -18,6 +18,64 @@ This API calculates the most cost-effective fueling strategy for long-haul trips
 
 ---
 
+### 1. Installation & Environment
+
+```bash
+# Clone and enter
+git clone https://github.com/Thimethane/FuelWise-Route-Optimizer
+cd FuelWise-Route-Optimizer
+
+# Setup environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Configure secrets
+---
+
+### ⚙️ Environment Configuration
+
+The API is built with an **automated environment toggle**. You can switch between a high-performance Docker stack (PostgreSQL + Redis) and a zero-dependency local setup (SQLite + LocMem) by editing your `.env` file.
+
+**1. Create your environment file:**
+
+```bash
+cp .env.example .env
+
+```
+
+**2. Configure your execution profile:**
+
+| Mode | `DB_ENGINE` | `REDIS_URL` | Use Case |
+| --- | --- | --- | --- |
+| **Local** | `sqlite` | *(Comment out)* | Rapid development, zero installation, no Docker needed. |
+| **Docker** | `postgres` | `redis://redis:6379/0` | Production testing, high-concurrency caching, persistent data. |
+
+**Example `.env` for Local Development:**
+
+```env
+
+# Set DB_ENGINE to 'postgres' to use the Docker container, 'sqlite' for local in .env
+# Use SQLite for zero-dependency local runs
+DB_ENGINE=sqlite
+
+# Comment out REDIS_URL to automatically trigger Local Memory Caching
+# REDIS_URL=redis://redis:6379/0
+
+# Your API Key
+GOOGLE_MAPS_API_KEY=your_key_here
+
+```
+
+---
+
+### 🚀 Usage Tip
+
+* **When `DB_ENGINE=sqlite**`: Django uses `db.sqlite3` and stores cache in your RAM (**LocMemCache**).
+* **When `DB_ENGINE=postgres**`: Django connects to the **PostgreSQL** container and uses **Redis** for persistent caching.
+
+---
+
 ## 🚀 Quick Start (Automated)
 
 The project includes a `Makefile` to automate the complex Docker and database initialization steps.
@@ -44,32 +102,6 @@ make setup
 | `make demo` | Run the interactive CLI benchmark suite |
 
 ---
-
-### 1. Mannual Installation & Environment
-
-```bash
-# Clone and enter
-git clone https://github.com/Thimethane/FuelWise-Route-Optimizer
-cd FuelWise-Route-Optimizer
-
-# Setup environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Configure secrets
-cp .env.example .env  # Update with your GOOGLE_MAPS_API_KEY
-
-```
-
-### 2. Database Initialization
-
-```bash
-# Run migrations
-python manage.py makemigrations routing
-python manage.py makemigrations
-python manage.py migrate
-```
 
 ### 3. Smart Data Import ⚡
 
@@ -106,21 +138,6 @@ docker-compose exec web python manage.py shell -c "from routing.models import Fu
 python manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
 
 ```
-
----
-
-### ⚙️ Update the `Makefile`
-
-To make this effortless, add this `clean-db` target to the `Makefile`:
-
-```makefile
-.PHONY: clean-db
-clean-db:
-	$(PYTHON) manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
-	@echo "✅ Database cleared. You can now run a fresh import."
-
-```
-
 ---
 
 ### 🧠 Why the Mock data might not return "correct" data:
@@ -130,6 +147,19 @@ When you run the **Chicago ➔ Houston** route, the algorithm looks for stations
 1. **Mathematical Mismatch:** If the Mock algorithm assigns a station in "Tillatoba, MS" a random coordinate that is actually 200 miles away from the highway, the spatial query `latitude BETWEEN ... AND ...` will skip it.
 2. **State Logic:** If your mock generator assigns coordinates based on a simple bounding box, it might place a "Texas" station inside "Oklahoma," causing the `state='TX'` filter to return no results for that specific location.
 
+
+### Mannual Installation & Environment
+
+```
+
+### 2. Database Initialization
+
+```bash
+# Run migrations
+python manage.py makemigrations routing
+python manage.py makemigrations
+python manage.py migrate
+```
 
 **Commands:**
 
@@ -144,6 +174,7 @@ python manage.py import_fuel_data fuel_prices.csv --geocode
 python manage.py import_fuel_data fuel_prices.csv
 
 ```
+---
 
 ### 4. Run & Test
 
@@ -158,113 +189,114 @@ curl -X POST http://localhost:8000/api/optimize-route/ \
 ```
 ---
 
-## 🖥️ Interactive Demo
-
-The project includes a CLI-based demo suite to showcase the API's logic, speed, and accuracy across different route lengths.
-
 ```bash
 # 1. Ensure the server is running
 python manage.py runserver
 
-# 2. In a new terminal, run the demo
+## Step 2: Test with Postman (2 minutes)
+
+### Option A: Use Postman Collection
+
+1. Open Postman
+2. Import `Fuel_Route_Optimizer.postman_collection.json`
+3. Run "San Francisco to Los Angeles" request
+4. Observe results in <1 second
+
+### Option B: Use curl
+
+```bash
+curl -X POST http://localhost:8000/api/optimize-route/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "start": "San Francisco, CA",
+    "finish": "Los Angeles, CA"
+  }'
+```
+
+Expected response:
+```json
+{
+  "start_location": {"lat": 37.7749, "lng": -122.4194, ...},
+  "finish_location": {"lat": 34.0522, "lng": -118.2437, ...},
+  "total_distance": 383.2,
+  "fuel_stops": [...],
+  "total_fuel_cost": 132.45,
+  "computation_time": 0.34,
+  "map_api_calls": 1
+}
+```
+
+---
+
+## Step 3: Run Demo Script (Optional)
+
+```bash
 python demo.py
-
 ```
 
-### What the demo tests:
-
-* **Health Check**: Validates DB connectivity and station count.
-* **Station Filtering**: Tests `GET` filtering by state and max price.
-* **Multi-Route Optimization**: Runs benchmarks for Short (SF ➔ LA), Medium (CHI ➔ HOU), and Long (NY ➔ LA) trips.
-* **Performance Grading**: Automatically grades the API response time.
+Interactive demo with:
+- Health checks
+- Multiple route tests
+- Performance summary
 
 ---
 
-To ensure your project is production-ready with the specific settings and initialization steps you provided, I have aligned the **Docker** configuration and **README** instructions to work seamlessly with your `settings.py` logic.
+### Test Scenarios
 
-### 1. The `.env.example` File
-
-This matches your `settings.py` environment-based switching logic.
-
-```env
-# --- Security ---
-DEBUG=True
-SECRET_KEY=generate-a-secure-key-for-production
-ALLOWED_HOSTS=localhost,127.0.0.1,web
-CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
-
-# --- Database ---
-# Set to 'postgres' to use the Docker container, 'sqlite' for local
-DB_ENGINE=postgres
-DB_NAME=fuel_db
-DB_USER=fuel_user
-DB_PASSWORD=fuel_pass
-DB_HOST=db
-DB_PORT=5432
-
-# --- Cache ---
-# Used by django-redis
-REDIS_URL=redis://redis:6379/0
-
-# --- External APIs ---
-GOOGLE_MAPS_API_KEY=your_google_api_key_here
-
+**Scenario 1: Short Route** (380 miles, 0-1 stop)
 ```
+Request: San Francisco → Los Angeles
+Expected: 0-1 fuel stops, ~$130 total
+Response time: <500ms
+```
+
+**Scenario 2: Medium Route** (1,100 miles, 2-3 stops)
+```
+Request: Chicago → Houston
+Expected: 2-3 fuel stops, ~$380 total
+Response time: <800ms
+```
+
+**Scenario 3: Long Route** (2,900 miles, 5-6 stops)
+```
+Request: San Francisco → New York
+Expected: 5-6 fuel stops, ~$1,000 total
+Response time: <1200ms
+```
+
+### What to Look For
+
+✅ **Performance Metrics**
+- `computation_time`: Should be <1.5s
+- `map_api_calls`: Should be 1 (or 0 if cached)
+
+✅ **Optimization Quality**
+- Fuel stops should be 300-450 miles apart
+- Prices should be competitive (lowest available near route)
+- Total cost should be reasonable
+
+✅ **Response Structure**
+- All required fields present
+- Coordinates are valid US locations
+- Math checks out (fuel_needed × price = cost)
 
 ---
 
-### 2. The `docker-compose.yml`
+## Test Routes to Try
 
-This sets up the **PostgreSQL** container, the **Redis** container, and the **Django** app, ensuring they connect using the names defined in your `DB_HOST`.
+### Short (380 miles, 0-1 stop)
+```json
+{"start": "San Francisco, CA", "finish": "Los Angeles, CA"}
+```
 
-```yaml
-version: '3.8'
+### Medium (1,100 miles, 2-3 stops)
+```json
+{"start": "Chicago, IL", "finish": "Houston, TX"}
+```
 
-services:
-  db:
-    image: postgres:15-alpine
-    container_name: fuel_optimizer_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=fuel_db
-      - POSTGRES_USER=fuel_user
-      - POSTGRES_PASSWORD=fuel_pass
-    ports:
-      - "5433:5432" # Host 5433 maps to Container 5432 to avoid local conflicts
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fuel_user -d fuel_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: fuel_optimizer_redis
-    expose:
-      - 6379
-
-  web:
-    build: .
-    container_name: fuel_optimizer_web
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    environment:
-      - DB_HOST=db # Maps to the 'db' service name above
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
-volumes:
-  postgres_data:
-
+### Long (2,900 miles, 5-6 stops)
+```json
+{"start": "New York, NY", "finish": "Los Angeles, CA"}
 ```
 
 ---
@@ -311,6 +343,46 @@ If you want to view the data using a tool like **pgAdmin** or **DBeaver** from y
 * **Database**: `fuel_db`
 ---
 
+### Cloud Deployment (GCP)
+
+**1. Build and push:**
+```bash
+gcloud builds submit --tag gcr.io/PROJECT_ID/fuel-optimizer
+
+gcloud run deploy fuel-optimizer \
+  --image gcr.io/PROJECT_ID/fuel-optimizer \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+**2. Connect Cloud SQL:**
+```bash
+gcloud sql instances create fuel-optimizer-db \
+  --database-version=POSTGRES_15 \
+  --tier=db-f1-micro \
+  --region=us-central1
+
+gcloud run services update fuel-optimizer \
+  --add-cloudsql-instances PROJECT_ID:us-central1:fuel-optimizer-db
+```
+
+---
+
+## Monitoring & Logging
+
+### Application Logs
+```bash
+# View logs
+tail -f debug.log
+
+# Filter for errors
+grep ERROR debug.log
+
+# Performance analysis
+grep "Optimization complete" debug.log | awk '{print $NF}'
+```
+
 ## 📚 API Documentation
 
 ### `POST /api/optimize-route/`
@@ -326,13 +398,34 @@ Returns the optimal fueling stops for a given trip.
 }
 
 ```
+---
 
-**Key Response Fields:**
+**External APIs Used:**
 
-* `total_fuel_cost`: Total estimated expenditure.
-* `fuel_stops`: Array of stations including `distance_from_start` and `step_cost`.
-* `route_polyline`: Encoded string for map visualization.
-* `map_api_calls`: Demonstrates caching efficiency (0 on repeat trips).
+1. **Google Maps (Primary Geocoding)**
+* Role: High-accuracy address resolution and validation.
+* Usage: Preferred for production routing accuracy.
+* Caching strategy: Results persisted in Database (Permanent).
+
+
+2. **Nominatim (Fallback Geocoding)**
+* Role: Free fallback geocoder.
+* Free tier: 1 request/second.
+* Caching strategy: 24-hour TTL.
+
+
+3. **OSRM (Routing)**
+* Role: Precise route geometry and distance calculation.
+* Free tier: No official limit.
+* Caching strategy: 1-hour TTL.
+
+
+
+**Optimization:**
+
+* First request: 1-3 external calls
+* Subsequent requests: 0 calls (all cached)
+* Cache hit rate: >90% after warmup
 
 ---
 
@@ -366,6 +459,65 @@ Vehicle and algorithm constants can be adjusted in `routing/services.py`:
 * `VEHICLE_RANGE`: Default `500` miles.
 * `MPG`: Default `10`.
 * `SEARCH_CORRIDOR_WIDTH`: `75` miles (Corridor width for station filtering).
+
+---
+
+## Performance Testing
+
+### Load Test Script
+```python
+import requests
+import time
+import statistics
+
+def test_performance():
+    url = "http://localhost:8000/api/optimize-route/"
+    routes = [
+        {"start": "San Francisco, CA", "finish": "Los Angeles, CA"},
+        {"start": "Chicago, IL", "finish": "Houston, TX"},
+        {"start": "New York, NY", "finish": "Miami, FL"},
+    ]
+    
+    times = []
+    
+    for route in routes * 3:  # Test each route 3 times
+        start = time.time()
+        response = requests.post(url, json=route)
+        elapsed = time.time() - start
+        
+        if response.status_code == 200:
+            times.append(elapsed)
+            print(f"✓ {route['start']} → {route['finish']}: {elapsed:.3f}s")
+        else:
+            print(f"✗ Failed: {response.status_code}")
+    
+    print(f"\nPerformance Summary:")
+    print(f"  Average: {statistics.mean(times):.3f}s")
+    print(f"  Median: {statistics.median(times):.3f}s")
+    print(f"  Min: {min(times):.3f}s")
+    print(f"  Max: {max(times):.3f}s")
+
+if __name__ == "__main__":
+    test_performance()
+```
+
+Run with:
+```bash
+python test_performance.py
+```
+
+Expected output:
+```
+✓ San Francisco, CA → Los Angeles, CA: 0.342s
+✓ Chicago, IL → Houston, TX: 0.289s
+✓ New York, NY → Miami, FL: 0.315s
+...
+Performance Summary:
+  Average: 0.312s
+  Median: 0.305s
+  Min: 0.289s
+  Max: 0.342s
+```
 
 ---
 

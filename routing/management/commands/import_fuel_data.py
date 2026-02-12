@@ -10,6 +10,7 @@ Key Features:
 * Idempotent Updates: Uses database-level UPSERT to update prices/metadata 
     without overwriting existing latitude/longitude coordinates.
 * Hybrid Geocoding: Tiered resolution logic (Google Maps -> Nominatim -> Mock).
+* Google Maps Integration: Primary high-speed geocoding with sub-200ms resolution.
 * Resilience: Handles messy highway addresses (Exits/Mile Markers) via 
     internal fallback logic in the MapAPIClient.
 * Performance: Batch processing for high-volume CSVs (default 1000 records).
@@ -17,18 +18,21 @@ Key Features:
 
 Operational Constraints & Notes:
 --------------------------------
-1.  Rate Limiting: When using Nominatim (free tier), a 1.1s delay is enforced 
-    to prevent IP blacklisting. 
-2.  Throughput: Full live geocoding of ~6,700 stations takes approx. 1.8 hours.
-3.  Recommendation: Use the `--use-mock` flag for development and CI/CD pipelines
-     to avoid API costs and latency.
+1.  Google Maps: Requires GOOGLE_MAPS_API_KEY in .env. Results are saved 
+    permanently to the DB to minimize API costs.
+2.  Rate Limiting: When falling back to Nominatim (free tier), a 1.1s delay 
+    is enforced to prevent IP blacklisting. 
+3.  Throughput: Full live geocoding of ~6,700 stations takes approx. 10-15 
+    minutes via Google Maps, or 1.8 hours via Nominatim.
+4.  Recommendation: Use the `--use-mock` flag for development and CI/CD 
+    pipelines to avoid API costs and latency.
 
 Usage Examples:
 ---------------
 # Standard import (Updates prices, adds new stations)
 $ python manage.py import_fuel_data fuel_prices.csv
 
-# Standard import + Geocode missing entries (Live API)
+# Standard import + Geocode missing entries (Primary: Google Maps)
 $ python manage.py import_fuel_data fuel_prices.csv --geocode
 
 # Development mode (Instant geocoding with deterministic mock data)
@@ -133,9 +137,8 @@ class Command(BaseCommand):
     def _do_upsert(self, station_list):
         """
         Uses Django 4.1+ update_conflicts feature.
-        Preserves latitude/longitude.
+        Preserves latitude/longitude if they already exist.
         """
-
         FuelStation.objects.bulk_create(
             station_list,
             update_conflicts=True,
@@ -163,9 +166,19 @@ class Command(BaseCommand):
             )
             return
 
-        estimated_time = total if not use_mock else 0
+        # Determine strategy for log messaging
+        if use_mock:
+            strategy = "Mock (Instant)"
+            est = "~30 seconds"
+        elif getattr(settings, "GOOGLE_MAPS_API_KEY", None):
+            strategy = "Google Maps (High Speed)"
+            est = f"~{int(total * 0.15)} seconds"
+        else:
+            strategy = "Nominatim (Throttled)"
+            est = f"~{int(total * 1.1)} seconds"
+
         self.stdout.write(
-            f"🌐 Target: {total} stations | Estimated time: ~{estimated_time} seconds"
+            f"🌐 Strategy: {strategy} | Target: {total} stations | Est: {est}"
         )
 
         client = MapAPIClient(use_cache=True, use_mock=use_mock)
@@ -196,7 +209,7 @@ class Command(BaseCommand):
                         f"Progress: [{i}/{total}] | Success: {geocoded} | Failed: {failed}"
                     )
 
-                # Global Nominatim protection (if Google not configured)
+                # Global Nominatim protection (Throttling)
                 if (
                     not use_mock
                     and not getattr(settings, "GOOGLE_MAPS_API_KEY", None)
