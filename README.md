@@ -74,7 +74,7 @@ GOOGLE_MAPS_API_KEY=your_key_here
 
 ### 🧠 Why the Mock data might not return "correct" data:
 
-When you run the **Chicago ➔ Houston** route, the algorithm looks for stations within a specific "Search Corridor" (e.g., 75 miles from the road).
+When you run the ** Chicago ➔ Houston** route, the algorithm looks for stations within a specific "Search Corridor" (e.g., 75 miles from the road).
 
 1. **Mathematical Mismatch:** If the Mock algorithm assigns a station in "Tillatoba, MS" a random coordinate that is actually 200 miles away from the highway, the spatial query `latitude BETWEEN ... AND ...` will skip it.
 2. **State Logic:** If your mock generator assigns coordinates based on a simple bounding box, it might place a "Texas" station inside "Oklahoma," causing the `state='TX'` filter to return no results for that specific location.
