@@ -66,79 +66,12 @@ DB_ENGINE=sqlite
 GOOGLE_MAPS_API_KEY=your_key_here
 
 ```
-
 ---
 
 ### 🚀 Usage Tip
 
-* **When `DB_ENGINE=sqlite**`: Django uses `db.sqlite3` and stores cache in your RAM (**LocMemCache**).
-* **When `DB_ENGINE=postgres**`: Django connects to the **PostgreSQL** container and uses **Redis** for persistent caching.
-
----
-
-## 🚀 Quick Start (Automated)
-
-The project includes a `Makefile` to automate the complex Docker and database initialization steps.
-
-### ⚡ One-Command Setup
-
-If you have `make` installed, simply run:
-
-```bash
-make setup
-
-```
-
-*This command builds the containers, starts the infrastructure, runs migrations, imports mock data, and launches the demo suite.*
-
-### 🛠️ Individual Commands
-
-| Command | Description |
-| --- | --- |
-| `make up` | Start PostgreSQL, Redis, and Django containers |
-| `make down` | Stop all services |
-| `make migrate` | Run database migrations inside the container |
-| `make import` | Seed the database with 6,738 stations (Mock mode) |
-| `make demo` | Run the interactive CLI benchmark suite |
-
----
-
-### 3. Smart Data Import ⚡
-
-The import command uses an **UPSERT strategy**, updating prices for existing stations without losing previously fetched coordinates. Geocoding performance varies significantly by provider:
-
-| Mode | Provider | Estimated Time (6,700 stations) | Description |
-| --- | --- | --- | --- |
-| **Mock** | Deterministic Alg | **< 30 seconds** | Uses state-aware clustering for local development. |
-| **Pro** | **Google Maps** | **~10-15 minutes** | High-speed, high-accuracy production geocoding. |
-| **Free** | Nominatim (OSM) | **~2 hours** | Respects 1-req/sec rate limits; slower fallback. |
-
-
-#### ⚠️ Critical: Database Cleanup
-
-If your routes are failing with `400 Invalid Request` or the Demo shows `0 stations found` after switching modes, you must clear the stale data.
-
-**Why this happens:**
-The optimizer relies on geographic coordinates to find stations along a route.
-
-* **Mock Mode** generates simulated coordinates for speed.
-* **Geocode Mode** fetches real GPS coordinates from Google.
-If you previously imported data using `--use-mock` and now want to use real `--geocode` (or vice versa), the database may contain "stale" coordinates that don't align with the actual route geometry, causing the optimizer to find zero valid stops.
-
-**Cleanup Command:**
-
-```bash
-# Via Make
-make clean-db
-
-# Via Docker
-docker-compose exec web python manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
-
-# Via Local Python
-python manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
-
-```
----
+**When `DB_ENGINE=sqlite**`: Django uses `db.sqlite3` and stores cache in your RAM (**LocMemCache**).
+**When `DB_ENGINE=postgres**`: Django connects to the **PostgreSQL** container and uses **Redis** for persistent caching.
 
 ### 🧠 Why the Mock data might not return "correct" data:
 
@@ -176,6 +109,41 @@ python manage.py import_fuel_data fuel_prices.csv
 ```
 ---
 
+### 3. Smart Data Import ⚡
+
+The import command uses an **UPSERT strategy**, updating prices for existing stations without losing previously fetched coordinates. Geocoding performance varies significantly by provider:
+
+| Mode | Provider | Estimated Time (6,700 stations) | Description |
+| --- | --- | --- | --- |
+| **Mock** | Deterministic Alg | **< 30 seconds** | Uses state-aware clustering for local development. |
+| **Pro** | **Google Maps** | **~10-15 minutes** | High-speed, high-accuracy production geocoding. |
+| **Free** | Nominatim (OSM) | **~2 hours** | Respects 1-req/sec rate limits; slower fallback. |
+
+
+#### ⚠️ Critical: Database Cleanup
+
+If your routes are failing with `400 Invalid Request` or the Demo shows `0 stations found` after switching modes, you must clear the stale data.
+
+**Why this happens:**
+The optimizer relies on geographic coordinates to find stations along a route.
+
+* **Mock Mode** generates simulated coordinates for speed.
+* **Geocode Mode** fetches real GPS coordinates from Google.
+If you previously imported data using `--use-mock` and now want to use real `--geocode` (or vice versa), the database may contain "stale" coordinates that don't align with the actual route geometry, causing the optimizer to find zero valid stops.
+---
+**Cleanup Command:**
+
+```bash
+# Via Local Python
+python manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
+
+# Via Make
+make clean-db
+
+# Via Docker
+docker-compose exec web python manage.py shell -c "from routing.models import FuelStation; FuelStation.objects.all().delete()"
+```
+---
 ### 4. Run & Test
 
 ```bash
@@ -302,6 +270,33 @@ Response time: <1200ms
 ---
 
 #### 🚀 Docker Deployment & DB Init
+
+---
+
+## 🚀 Quick Start (Automated)
+
+The project includes a `Makefile` to automate the complex Docker and database initialization steps.
+
+### ⚡ One-Command Setup
+
+If you have `make` installed, simply run:
+
+```bash
+make setup
+
+```
+
+*This command builds the containers, starts the infrastructure, runs migrations, imports mock data, and launches the demo suite.*
+
+### 🛠️ Individual Commands
+
+| Command | Description |
+| --- | --- |
+| `make up` | Start PostgreSQL, Redis, and Django containers |
+| `make down` | Stop all services |
+| `make migrate` | Run database migrations inside the container |
+| `make import` | Seed the database with 6,738 stations (Mock mode) |
+| `make demo` | Run the interactive CLI benchmark suite |
 
 **1. Start the Infrastructure**
 Launch the PostgreSQL and Redis containers in the background:
