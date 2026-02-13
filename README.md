@@ -157,7 +157,7 @@ curl -X POST http://localhost:8000/api/optimize-route/ \
 ```bash
 # 1. Ensure the server is running
 python manage.py runserver
-
+```
 ## Step 2: Test with Postman (2 minutes)
 
 ### Option A: Use Postman Collection
