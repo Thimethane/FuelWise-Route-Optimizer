@@ -63,8 +63,8 @@ DB_ENGINE=sqlite
 
 # Your API Key
 GOOGLE_MAPS_API_KEY=your_key_here
-
 ```
+
 ---
 
 ### 🚀 Usage Tip
@@ -81,8 +81,6 @@ When you run the **Chicago ➔ Houston** route, the algorithm looks for stations
 
 
 ### Mannual Installation & Environment
-
-```
 
 ### 2. Database Initialization
 
