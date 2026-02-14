@@ -2,6 +2,14 @@
 
 **A high-performance, production-ready Django REST API for optimizing fuel stops along US transcontinental routes.**
 
+### 🎯 Engineering Highlights
+
+- **Sub-Second Performance:** 3,000-mile routes processed in ~1s (cold) and ~80ms (cached).
+- **API Cost Control:** Consistently achieves the "Ideal" constraint of **1 external routing call per request**.
+- **Spatial Optimization:** Bounding-box filtering + Haversine proximity math to reduce 8,000+ stations to ~200 candidates.
+- **Smart Refueling Logic:** Greedy lookahead algorithm minimizes total trip cost — not just the next refill.
+- **Production-Ready Design:** Environment-aware configuration (SQLite/LocMem ↔ PostgreSQL/Redis), structured logging, and strict DRF validation.
+
 Built by **Timothee Ringuyeneza** | Backend Django Engineer
 
 ---

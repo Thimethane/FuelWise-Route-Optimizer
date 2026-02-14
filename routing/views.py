@@ -4,6 +4,7 @@ Implements clean REST endpoints with hybrid map support and comprehensive error 
 """
 import logging
 import time
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -20,7 +21,7 @@ from .models import FuelStation
 
 logger = logging.getLogger(__name__)
 
-
+@csrf_exempt
 @api_view(['POST'])
 def optimize_route(request):
     """
